@@ -1,0 +1,11 @@
+prod:
+  .settings:
+    cache: false
+ 
+dev:
+  .settings:
+    cache: false
+ 
+test:
+  .settings:
+    cache: false

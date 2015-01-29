@@ -1,0 +1,3 @@
+scan_homepage:
+    path:     /
+    defaults: { _controller: ScanBundle:Default:index, url: main }

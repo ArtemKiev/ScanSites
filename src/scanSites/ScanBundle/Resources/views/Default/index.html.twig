@@ -1,0 +1,41 @@
+{% extends "ScanBundle::base.html.twig" %}
+{% block content %}
+    <body>
+    <form method="get" style="margin-top: 10px;">
+        Домен:
+        <input type="text" name="domains" value="{{ domain|default('') }}"
+               style="font-size: 16px; height: 30px; margin-bottom: 0;"/>
+        <input type="submit" value="Скан" class="btn btn-primary"/>
+    </form>
+    {% if max_execution_time is defined %}max_execution_time: {{ max_execution_time }}{% endif %}
+    {% if memory_limit is defined %}, memory_limit: {{ memory_limit }}{% endif %}
+    {% if items is defined %}
+    {% for n, item in items %}
+        <h2>Страница {{ n+1 }}:</h2>
+        URL: <a href="http://{{ domain }}{{ item.thisPage }}" target="_blank">http://{{ domain }}{{ item.thisPage }}</a>
+        <br/>
+        {% if errors is defined %}
+            {{ errors }}
+        {% endif %}
+        Количество вхождений rel="noindex nofollow": <b style="color: red;">{{ item.relsCount }}</b><br/>
+        <div style="float:left; width: 40%;">
+            <h4>Внутренние ссылки ({{ item.intLinks|length }}):</h4>
+            {% for link in item.intLinks %}
+                <a href="http://{{ domain }}{{ link }}" target="_blank">{{ link }}</a><br/>
+            {% endfor %}
+        </div>
+        <div style="float:left; width: 59%;">
+            <h4>Внешние ссылки ({{ item.outLinks|length }}):</h4>
+            {% for link in item.outLinks %}
+                <a href="{{ link.url|raw }}" target="_blank">{{ link.url|raw }}</a>
+                {% if link.redirectedTo is defined %}
+                    перенаправляет на <a href="{{ link.redirectedTo|raw }}" target="_blank">{{ link.redirectedTo|raw }}
+                    </a>{% if link.code is defined %} ({{ link.code }}){% endif %}
+                {% endif %}<br/>
+            {% endfor %}
+        </div>
+        <div style="margin-bottom: 25px;clear:both;"></div>
+        <hr/>
+    {% endfor %}
+    {% endif %}
+{% endblock %}
