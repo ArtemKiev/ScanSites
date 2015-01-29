@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Tests\Functional\app\AppKernel;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/hello/{name}")
+     * @Route("/{url}")
      * @Template()
      */
     public function indexAction($url)
@@ -40,10 +40,11 @@ class DefaultController extends Controller
                 }
             }
         }
-        return $this->render('ScanBundle:Default:index.html.twig',$html);
+        return $this->render('ScanBundle:Default:index.html.twig', $html);
     }
 
-    private function getData($domain, $thisUrl) {
+    private function getData($domain, $thisUrl)
+    {
         $outLinks = [];
         $intLinks = [];
         $tempLinksArray = [];
@@ -53,7 +54,7 @@ class DefaultController extends Controller
         try {
             $response = $guzzle->get('http://' . $domain . $thisUrl);
             if ($response->getStatusCode() == 200) {
-                $code = (string) $response->getBody();
+                $code = (string)$response->getBody();
                 preg_match_all('/<a.*?href="([^"]+)".*?>/', $code, $urls);
                 foreach ($urls[1] as $url) {
                     if ($url != '/' && substr($url, 0, 1) != '#') {
@@ -93,8 +94,15 @@ class DefaultController extends Controller
                             }
                         } else {
                             if (!in_array(urldecode($url), $tempLinksArray)) {
+                                $code = 200;
+                                try {
+                                    $test = $guzzle->get($url);
+                                    $code = $test->getStatusCode();
+                                } catch (\Exception $e) {
+                                    $code = $e->getCode();
+                                }
                                 $tempLinksArray[] = urldecode($url);
-                                $outLinks[] = ['url' => urldecode($url)];
+                                $outLinks[] = ['url' => urldecode($url), 'code' => $code];
                             }
                         }
                     }
